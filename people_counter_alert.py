@@ -5,9 +5,11 @@ import cv2
 import time
 import winsound
 class DetectorAPI:
+    #initialize the model and its frozen graph
     def __init__(this, path_to_ckpt):
         this.path_to_ckpt = 'ssdlite_mobilenet_v2_coco_2018_05_09/frozen_inference_graph.pb'
         this.detection_graph = tf.Graph()
+        #extract the frozen inference graph of the model
         with this.detection_graph.as_default():
             od_graph_def = tf.GraphDef()
             with tf.gfile.GFile(this.path_to_ckpt, 'rb') as fid:
@@ -37,7 +39,7 @@ class DetectorAPI:
         end_time = time.time()
 
         print("Frame per second(fps):", 1/(end_time-start_time))
-
+        #convert the images data into a numPy array for easy processing
         im_height, im_width,_ = image.shape
         boxes_list = [None for i in range(boxes.shape[1])]
         for i in range(boxes.shape[1]):
@@ -47,7 +49,7 @@ class DetectorAPI:
                         int(boxes[0,i,3]*im_width))
 
         return boxes_list, scores[0].tolist(), [int(x) for x in classes[0].tolist()], int(num[0])
-
+    #close the inference session
     def close(this):
         this.sess.close()
         this.default_graph.close()
